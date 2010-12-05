@@ -1,0 +1,51 @@
+====== TemplateConf Helper Plugin ======
+
+various functions to help with template management.
+
+===== TemplateAction =====
+
+changes template based on users Selection via GET and saves it in the Session.
+
+==== parameter ====
+
+  * $_GET[utpl]  /^[\w-]+$/ - override template
+
+==== functions ====
+
+  * get_user( $var=false ) - get utpl from session
+  * save_session( $var, $false ) - save utpl to session
+  * save_user( $var, $val ) - #DUMMY
+  * tpl_switch( $tpl ) - change style after init.php has been run
+  * tpl_loadconfig( $tpl ) - reload config for template
+
+===== FetchAction =====
+
+uses FETCH_MEDIA_STATUS event to hook into fetch.php. This allows to have template files outside of webroot.
+
+==== parameter ====
+
+  * $_GET[mode]  styleimg - trigger 
+  * $_GET[template /^[\w-]*$/ - template dir to search for the file
+a nginx rewrite rule to fix path used in templates
+  rewrite ^/lib/tpl/((.*)/)?images/(.*)      /lib/exe/fetch.php?mode=styleimg&media=$3&template=$2 last;
+
+
+===== preload =====
+
+This is a hack to hook into css.php. //inc/preload.php// is loaded in the head of the templateaction plugin and runs for css.php calls and later in init than preload.php. It loads //inc/css.php// instead of the dokuwiki css.php and exits. 
+If the template_path cascade config has not been set. Defaults are made up for a standard dokuwiki setup. default_tpl and base_tpl conf settings can be used to configure fallbacks. Use if this is a but unclear yet.FIXME
+
+==== css ====
+
+replaces some functions from dokuwiki.css to select the template path based on the getConfigPath( ) function from //inc/confutils//
+
+==== confutils ====
+==== template =====
+
+
+
+
+
+
+  
+
