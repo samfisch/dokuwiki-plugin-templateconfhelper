@@ -144,7 +144,7 @@ function css_out_tfh(){
     ob_end_clean();
 
     // apply style replacements
-    $css = css_applystyle($css,$tpl);   // removed tplinc
+    $css = css_applystyle_tfh($css,$tpl);   // removed tplinc
 
     // compress whitespace and comments
     if($conf['compress']){
@@ -203,6 +203,7 @@ function css_applystyle_tfh($css, $tpl ){
 
       if( !$file = getConfigPath( 'template_dir', $tpl.'/style.ini' ))
         $file = getConfigPath( 'template_dir', $conf['default_tpl'].'/style.ini' );
+
     $ini = parse_ini_file( $file, true);
     $css = strtr($css,$ini['replacements']);
 

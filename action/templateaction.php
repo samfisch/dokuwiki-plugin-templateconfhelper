@@ -9,10 +9,6 @@
 
 if(!defined('DOKU_INC')) die();
 
-// pirating into css.php 
-require_once( DOKU_PLUGIN.'/templateconfhelper/inc/preload.php' ); // tpl_... functions                              
-
-// if called via preload 
 
 class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Plugin {
 
@@ -29,7 +25,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
 
   function register(&$controller) {/*{{{*/
 
-      $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'template_action' );
+      #$controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'template_action' );
 
   }/*}}}*/
 
@@ -151,3 +147,5 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     } /*}}}*/
 
 }
+// pirating into css.php 
+require_once( DOKU_PLUGIN.'/templateconfhelper/inc/preload.php' ); // tpl_... functions                              

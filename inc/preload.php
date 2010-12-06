@@ -15,10 +15,10 @@ require_once(DOKU_PLUGIN.'templateconfhelper/inc/template.php');
 global $config_cascade, $conf;
 if( !isset( $config_cascade['template_dir'] )) {
    $config_cascade['template_dir'] = array(    // used in confutils	
-        'default' => array( dirname( DOKU_TPLINC )),
+        'default' => array( dirname( DOKU_TPLINC ).'/' ),
    );
 }
-if( !isset( $config_cascade['template_dir'] )) {
+if( !isset( $config_cascade['template'] )) {
    $config_cascade['template'] = array(
         'default'     => array( DOKU_CONF.'template.php'),
    );
