@@ -22,6 +22,15 @@ changes template based on users Selection via GET and saves it in the Session.
 
 uses FETCH_MEDIA_STATUS event to hook into fetch.php. This allows to have template files outside of webroot.
 
+Probably does not work because of     
+if(auth_quickaclcheck(getNS($media).':X') < AUTH_READ){
+      return array( 403, 'Forbidden' );
+}
+
+could be fixed eg by overriding conf[useacl]? :)
+
+
+
 ==== parameter ====
 
   * $_GET[mode]  styleimg - trigger 

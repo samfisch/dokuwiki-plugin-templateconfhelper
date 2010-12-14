@@ -91,3 +91,13 @@ function tpl_youarehere_lv($sep=' &raquo; '){
   
   return true;
 }
+
+function tpl_userinfo_lv(){
+    global $lang;
+    global $INFO;
+    if(isset($_SERVER['REMOTE_USER'])){
+        print $lang['loggedinas'].': ('.hsc($_SERVER['REMOTE_USER']).')';
+        return true;
+    }
+    return false;
+}

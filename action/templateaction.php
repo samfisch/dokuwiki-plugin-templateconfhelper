@@ -25,7 +25,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
 
   function register(&$controller) {/*{{{*/
 
-      #$controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'template_action' );
+      $controller->register_hook('ACTION_ACT_PREPROCESS', 'BEFORE',  $this, 'template_action' );
 
   }/*}}}*/
 
