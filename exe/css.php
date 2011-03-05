@@ -236,16 +236,5 @@ function css_getpath( $t, $file ) {
 
     return $include; 
 
-#    if( $return = getConfigPath( 'template_dir', $t.'/'.$file )) {
-#      return $return;
-#    }
-#    if( $return = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file )) {
-#      return $return;
-#    }
-#    if( $return = getConfigPath( 'template_dir', $conf['default_tpl'].'/'.$file )) {
-#      return $return;
-#    }
-#echo "$t fallback ".DOKU_INC."lib/tpl/".$conf['base_tpl']."/".$file."\n";
-#    return DOKU_INC.'lib/tpl/'.$conf['base_tpl'].'/'.$file;
 }
 //Setup VIM: ex: et ts=4 enc=utf-8 :

@@ -1,6 +1,9 @@
 ====== TemplateConf Helper Plugin ======
 
 various functions to help with template management.
+  * template inheritance with cascade [[#inheritance]]
+  * custom css.php with inheritance [[#preload]]
+  * userstyle [[#templateaction]]
 
 ===== TemplateAction =====
 
@@ -16,7 +19,7 @@ changes template based on users Selection via GET and saves it in the Session.
   * save_session( $var, $false ) - save utpl to session
   * save_user( $var, $val ) - #DUMMY
   * tpl_switch( $tpl ) - change style after init.php has been run
-  * tpl_loadconfig( $tpl ) - reload config for template
+  * tpl_loadconfig( $tpl ) - reload config for template, called on switch
 
 ===== FetchAction =====
 
@@ -39,22 +42,63 @@ a nginx rewrite rule to fix path used in templates
   rewrite ^/lib/tpl/((.*)/)?images/(.*)      /lib/exe/fetch.php?mode=styleimg&media=$3&template=$2 last;
 
 
+===== inheritance =====
+
+The custom css.php and the functions in //inc/template.php// use following new config settings to look up templatefiles. Files that dont exist in the active template are choosen from there.
+
+  * template, dokuwiki template setting possibly overwritten by template switch
+  * default_tpl, dokuwiki template setting
+  * base_tpl, fallback template 
+
+For the main.php the default is hardcoded in dokuwiki.php. So for templates to overwrite the main.php they have to exist in the dokuwiki //lib/tpl/// directory. Fallback is always //lib/tpl/default///. This is a security feature as without a special template making use of eg the tpl_include function no php code from the following cascade path is interpreted. (I think)
+
+Cascade Path is an extension to the cascade config values in dokuwiki init. It can be set in preload.php and allows to read templates from pathes outside dokuwiki code. E.g. per domain in farming environments.
+
+Example cascade path for inc/preload.php 
+
+  $version    = '/dokuwiki/'
+  $farmdir    = "$farmbasedir/domains/$animal/";
+  
+  $config_cascade['template_dir'] = array(    // used in templateconfig plugin 
+      'default' => array( $farmbasedir.'/extension/tpl/', $farmbasedir.$version.'lib/tpl/' ),
+      'local' => array( $farmdir.'tpl/' ),
+      #'protected' => array( $farmbasedir.'/extension/tpl_protected/' ),
+    );
+
+to allow animals to overwrite template php files a main.php like this can be used in the default_tpl or base_tpl in dokuwiki //lib/tpl//// directory. It will check the cascade path for a main.php in the active template. 
+
+  <?php
+  tpl_include( 'main.php' );
+
+
 ===== preload =====
 
-This is a hack to hook into css.php. //inc/preload.php// is loaded in the head of the templateaction plugin and runs for css.php calls and later in init than preload.php. It loads //inc/css.php// instead of the dokuwiki css.php and exits. 
-If the template_path cascade config has not been set. Defaults are made up for a standard dokuwiki setup. default_tpl and base_tpl conf settings can be used to configure fallbacks. Use if this is a but unclear yet.FIXME
+This is a rather creative apporach to hook into css.php. The templateaction plugin class deffinition includes //inc/preload.php//. Here css.php calls are intercepted and the custom css.php from the plugins //exe/// directory is loaded.
 
-==== css ====
+If the template_path cascade config has not been set. Defaults are made up for a standard dokuwiki setup.
 
-replaces some functions from dokuwiki.css to select the template path based on the getConfigPath( ) function from //inc/confutils//
 
 ==== confutils ====
+
+  * getConfigPath( $type, $file ) - find file in cascade_config[$type]
+
 ==== template =====
 
+  * tpl_include( $file, $t=false ) - use getConfigPath to include file from cascade_config['template_path'], checks templates $t, default_tpl and base_tpl
+  * ... some functions to use in templates
+
+==== css ====
+include style.ini and css files based on inheritance. Makes use of default_tpl, base_tpl and getConfigPath( )
 
 
+===== changes =====
 
+==== release0.1 - Sat Mar 5 2011 ====
+  * public functions marked public now for free software reasons
+  * templateconfig cascade removed, should go into preload or seperate plugin
+  * some inheritance dokumentation
+  * new config setting for base_tpl
 
-
-  
+TODO:
+  * fix fetch.php
 

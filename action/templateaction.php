@@ -14,12 +14,12 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
 
   function getInfo(){
     return array(
-        'author' => 'ai',
-        'email'  => 'ai',
+        'author' => 'sf',
+        'email'  => 'sf@notomorrow.de',
         'date'   => '2010-02-07',
-        'name'   => 'template functions',
-        'desc'   => 'collection of functions used for eh2010 and user template switching',
-        'url'    => 'wiki.muc.ccc.de',
+        'name'   => 'template actions',
+        'desc'   => 'switches template based on user selection',
+        'url'    => 'm3.notomorrow.de',
     );
   }
 
@@ -74,7 +74,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
       
   }/*}}}*/
 
-  function get_user( $var=false ) {/*{{{*/
+  public function get_user( $var=false ) {/*{{{*/
       if( !isset( $this->u['load'] )) {
         @session_start();
         $this->u = ( isset( $_SESSION[DOKU_COOKIE]['tpl'] )) ? $_SESSION[DOKU_COOKIE]['tpl'] : false;
@@ -88,8 +88,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
       return $this->u;
   }/*}}}*/
 
-
-  function save_session( $var, $val ) {/*{{{*/
+  public function save_session( $var, $val ) {/*{{{*/
       $this->u[$var] = $val;
 
       @session_start();
@@ -97,7 +96,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
       session_write_close();
   }/*}}}*/
 
-  function save_user( $var, $val ) {
+  public function save_user( $var, $val ) {
     return false;
   }
 
@@ -106,7 +105,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
    * changes style after doku init 
    */
 
-  function tpl_switch(  $tpl ) {/*{{{*/
+  public function tpl_switch(  $tpl ) {/*{{{*/
     global $conf;
     if( $conf['template'] == $tpl ) { return ''; }
 
@@ -137,7 +136,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     }
   }/*}}}*/
 
-    function tpl_loadconfig( $tpl ) {/*{{{*/
+  public function tpl_loadconfig( $tpl ) {/* {{{*/
         $file = DOKU_TPLINC.'../'.$tpl.'/conf/default.php';
         $conf = array();
         if (!@file_exists($file)) return false;
@@ -147,5 +146,6 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     } /*}}}*/
 
 }
+
 // pirating into css.php 
 require_once( DOKU_PLUGIN.'/templateconfhelper/inc/preload.php' ); // tpl_... functions                              

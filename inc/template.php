@@ -19,7 +19,7 @@ function tpl_include( $file, $t=false, $allowphp=true ) {
     }
     
     if( !$include )
-        $include = DOKU_INC.'lib/tpl/'.$conf['base_tpl'].'/'.$file;
+	$include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
 
     if( $allowphp || $conf['tpl_allowphp'] ) {
         include( $include );

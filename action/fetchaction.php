@@ -2,7 +2,7 @@
 /**
  * DokuWiki plugin template changing
  *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
  * @author     Samuel Fischer <sf@notomorrow.de>
  */
 
