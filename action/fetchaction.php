@@ -37,17 +37,33 @@ class action_plugin_templateconfhelper_fetchaction extends DokuWiki_Action_Plugi
         if( $data['status'] != '404' ) {
             return false;
         }
-	$tpl = $_GET['template'];
+
+	$tpl    = $_GET['template'];
+	$media  = $MEDIA;   // cleaned by getID( )
+        $imgdir = '/images/';
 
         if( !preg_match( '/^[\w-]*$/', $tpl )) {
+            $data['status'] = '400';
+            $data['statusmessage'] = 'Bad Syntax';
             return false;
         }
 
-        $plugins = plugin_list( );
+        $media = str_replace( ':', '/', $media );
 
-        if( !$file = getConfigPath( 'template_dir', $tpl.'/images/'.$MEDIA ))
-          $file = getConfigPath( 'template_dir', $conf['base_tpl'].'/images/'.$MEDIA );
-        
+        if( !$tpl || !$file = getConfigPath( 'template_dir', $tpl.$imgdir.$media )) {
+          // init event seems not to be fired so manual call 
+            $e = new action_plugin_templateconfhelper_templateaction( );
+            $e->template_action( );
+
+            if( $conf['template'] && $tpl != $conf['template'] ) {
+                $file = getConfigPath( 'template_dir', $conf['template'].$imgdir.$media );
+            } elseif( $conf['default_tpl'] && $t != $conf['default_tpl'] ) {
+                $file = getConfigPath( 'template_dir', $conf['default_tpl'].$imgdir.$media );
+            } else {
+                $file = getConfigPath( 'template_dir', $conf['base_tpl'].$imgdir.$media );
+            }
+        }
+
         //fall through with 404
         if(!@file_exists( $file )) {
             return false;
