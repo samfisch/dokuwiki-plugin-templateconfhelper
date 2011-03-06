@@ -1,79 +1,19 @@
 ====== templateconfhelper Plugin ======
 
----- plugin ----
-description: template switching and inheritance
-author     : Samuel Fischer
-email      : sf@notomorrow.de
-type       : action helper
-lastupdate : 2011-03-05
-compatible : 2010-11-07 "Anteater"
-depends    : 
-conflicts  : 
-similar    : loadskin, multitemplate_styleman
-tags       : template farm
-downloadurl: 
-bugtracker : http://github.com//dokuwiki-plugin-templateconfhelper/issues
-sourcerepo : http://github.com//dokuwiki-plugin-templateconfhelper/
-donationurl: 
-----
-
-===== Installation =====
-
-:!: This plugin helps developing and managing templates. It does not add any functioanlity by its own.
-
-:!: This is a beta release. The functions included or their use might be a security risk
-
-you can install the plugin using the [[plugin:plugin|Plugin Manager]] using this url:
-  
-
-or checkout the source on github:
-  git clone git://github.com/samfisch/dokuwiki-plugin-templateconfhelper.git templateconfhelper
-
-===== Features =====
-
-  * template inheritance, templates can reference php and style files from other templates -- [[#inheritance]]
-  * template switcher action plugin, later version might include template tags or user-settings-page extension --[[templateaction]]
-  * template images via fetch.php -- [[fetchaction]]
-  * cascading template path, templates can be stored outside dokuwiki directory if you use [[devel:preload|preload]]
-
-===== Examples/Usage =====
-
-An example template making use of css iheritance could look like this:
-
-<file ini style.ini>
-[stylesheets]
-layout.css     = screen
-design.css     = screen
-style.css      = screen
-
-example.css    = screen
-
-media.css         = screen
-_mediaoptions.css = screen
-_admin.css        = screen
-_linkwiz.css      = screen
-_subscription.css = screen
-rtl.css        = rtl
-print.css      = print
-
-[replacements]
-; main text color
-__text__           = "#F439CB"
-</file>
-
-<file css example.css>
-body .dokuwiki {
-    font-size: 0.7em !important;
-}
-</file>
+various functions to help with template management.
+  * template inheritance with cascade [[#inheritance]]
+  * custom css.php with inheritance [[#preload]]
+  * userstyle [[#templateaction]]
 
 ===== TemplateAction =====
 changes template based on users Selection via GET and saves it in the Session.
 
 ==== parameter ====
+
   * $_GET[utpl]  /^[\w-]+$/ - override template
 
 ==== functions ====
+
   * get_user( $var=false ) - get utpl from session
   * save_session( $var, $false ) - save utpl to session
   * save_user( $var, $val ) - #DUMMY
@@ -81,18 +21,20 @@ changes template based on users Selection via GET and saves it in the Session.
   * tpl_loadconfig( $tpl ) - reload config for template, called on switch
 
 ===== FetchAction =====
+
 uses FETCH_MEDIA_STATUS event to hook into fetch.php. This allows to have template files outside of webroot.
 
 ==== parameter ====
+
   * $_GET[mode]  styleimg - trigger
   * $_GET[template /^[\w-]*$/ - template dir to search for the file
 a nginx rewrite rule to fix path used in templates
   rewrite ^/lib/tpl/((.*)/)?images/(.*)      /lib/exe/fetch.php?mode=styleimg&media=$3&template=$2 last;
-or with nicer patch
-  rewrite ^/_img/((.*)/)?(.*)        /lib/exe/fetch.php?mode=styleimg&media=$3&template=$2 last;
 
 ===== inheritance =====
+
 The custom css.php and the functions in //inc/template.php// use following new config settings to look up templatefiles. Files that dont exist in the active template are choosen from the next template in this order:
+
   * template, dokuwiki template setting possibly overwritten by template switch
   * default_tpl, dokuwiki template setting
   * base_tpl, fallback template 
@@ -102,6 +44,7 @@ For the main.php the default is hardcoded in dokuwiki.php. So for templates to o
 Cascade Path is an extension to the cascade config values in dokuwiki init. It can be set in preload.php and allows to read templates from pathes outside dokuwiki code. E.g. per domain in farming environments.
 
 Example cascade path for inc/preload.php
+
   $version    = '/dokuwiki/'
   $farmdir    = "$farmbasedir/domains/$animal/";
 
@@ -134,17 +77,13 @@ If the template_path cascade config has not been set. Defaults are made up for a
 
 ==== css ====
 include style.ini and css files based on inheritance. Makes use of default_tpl, base_tpl and getConfigPath( )
+change cache rules to see changes on cascade path.
 
-===== FAQ =====
+===== changes =====
 
-===== Todo =====
-  * exclude or document template helper functions
-  * add template switcher for user settings
-  * publish some templates
-
-===== Discussion =====
-
-{{include>plugin:templateconfhelper:discussion}}
-
-
+==== release0.1 - Sat Mar 5 2011 ====
+  * public functions marked public now for free software reasons
+  * templateconfig cascade removed, should go into preload or seperate plugin
+  * some inheritance dokumentation
+  * new config setting for base_tpl
 
