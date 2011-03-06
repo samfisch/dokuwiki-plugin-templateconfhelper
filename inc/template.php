@@ -2,7 +2,7 @@
 /**
  * DokuWiki plugin template functions
  *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
  * @author     Samuel Fischer <sf@notomorrow.de>
  */
 
@@ -92,6 +92,7 @@ function tpl_youarehere_lv($sep=' &raquo; '){
   return true;
 }
 
+// userinfo less verbose
 function tpl_userinfo_lv(){
     global $lang;
     global $INFO;

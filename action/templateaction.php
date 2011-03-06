@@ -1,8 +1,8 @@
 <?
 /**
- * DokuWiki plugin template changing
+ * DokuWiki plugin template helper
  *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
  * @author     Samuel Fischer <sf@notomorrow.de>
  */
 
@@ -18,8 +18,8 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
         'email'  => 'sf@notomorrow.de',
         'date'   => '2010-02-07',
         'name'   => 'template actions',
-        'desc'   => 'switches template based on user selection',
-        'url'    => 'm3.notomorrow.de',
+        'desc'   => 'switch template based on user selection',
+        'url'    => 'samfisch.de',
     );
   }
 
@@ -53,6 +53,12 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
 	$tpl = $_GET['utpl']; 
         $this->save_session( 'template', $tpl );
     }
+    if( isset( $_GET['utpl'] ) && $_GET['utpl'] == "" ) {
+	$tpl = $conf['default_tpl']; 
+        $this->save_session( 'template', $tpl );
+	$switch = false;
+    }
+
 
     if( isset( $_GET['utpl_theme'] ) && preg_match( '/^[\w-]*$/', $_GET['utpl_theme'] )) { 
         if( $_GET['utpl_theme'] ) {
@@ -63,12 +69,6 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     }
 
     if( $switch && preg_match( '/^[\w-]+$/', $tpl )) {
-        #$this->save_session( 'template', $tpl );
-#	if( isset( $_GET['utpl_save'] )) {
-     // TODO: save user settings to file
-#	    $this->save_user( 'template', $tpl );
-#	}
-
 	$this->_switch( $tpl, $theme );
     }
       

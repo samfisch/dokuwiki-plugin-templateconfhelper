@@ -2,7 +2,7 @@
 /**
  * DokuWiki StyleSheet creator fork
  *
- * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
+ * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
  * @author     Andreas Gohr <andi@splitbrain.org>
  * @author     Samuel Fischer <sf@notomorrow.de>
  */
@@ -16,7 +16,6 @@ require_once(DOKU_INC.'inc/httputils.php');
 require_once(DOKU_INC.'inc/io.php');
 require_once(DOKU_INC.'inc/confutils.php');
 
-error_reporting( E_ALL );
 // Main (don't run when UNIT test)
 if(!defined('SIMPLE_TEST')){
     header('Content-Type: text/css; charset=utf-8');

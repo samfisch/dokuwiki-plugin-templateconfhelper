@@ -1,6 +1,6 @@
 <?
 /**
- * DokuWiki plugin template changing
+ * DokuWiki plugin template helper
  *
  * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
  * @author     Samuel Fischer <sf@notomorrow.de>
@@ -13,12 +13,12 @@ class action_plugin_templateconfhelper_fetchaction extends DokuWiki_Action_Plugi
 
   function getInfo(){
     return array(
-        'author' => 'ai',
-        'email'  => 'ai',
+        'author' => 'Samuel Fischer',
+        'email'  => 'sf',
         'date'   => '2010-02-07',
         'name'   => 'template functions',
-        'desc'   => 'collection of functions used for eh2010 and user template switching',
-        'url'    => 'wiki.muc.ccc.de',
+        'desc'   => 'serv files from templatedir',
+        'url'    => 'samfisch.de',
     );
   }
 
