@@ -229,9 +229,11 @@ function css_getpath( $t, $file ) {
             $include = getConfigPath( 'template_dir', $conf['template'].'/'.$file );
         elseif( $conf['default_tpl'] && $t != $conf['default_tpl'] )
             $include = getConfigPath( 'template_dir', $conf['default_tpl'].'/'.$file );
-        else
-            $include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
     }
+    if( !$include ) {
+        $include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
+    }
+echo "include($file): $include<br>\n";
 
     return $include; 
 
