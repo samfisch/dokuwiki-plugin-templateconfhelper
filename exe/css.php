@@ -88,6 +88,7 @@ function css_out_tfh(){
         // load plugin, template, user styles
         $files = array_merge($files, css_pluginstyles($style));
         if (isset($tplstyles[$style])) $files = array_merge($files, $tplstyles[$style]);
+        elseif (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']); // FIX
 
         if(isset($config_cascade['userstyle'][$style])){
             $files[$config_cascade['userstyle'][$style]] = DOKU_BASE;
@@ -108,7 +109,7 @@ function css_out_tfh(){
     // check cache age & handle conditional request
     header('Cache-Control: public, max-age=3600');
     header('Pragma: public');
-    if(css_cacheok($cache,array_merge( array_keys($files)), css_getpath( $tpl, 'style.ini' ))){     //added style.init
+    if(css_cacheok_tfh($cache,array_merge( array_keys($files)), css_getpath( $tpl, 'style.ini' ))){     //added style.init
         http_conditionalRequest(filemtime($cache));
         if($conf['allowdebug']) header("X-CacheUsed: $cache");
 
@@ -233,7 +234,7 @@ function css_getpath( $t, $file ) {
     if( !$include ) {
         $include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
     }
-echo "include($file): $include<br>\n";
+#echo "include($file): $include<br>\n";
 
     return $include; 
 
