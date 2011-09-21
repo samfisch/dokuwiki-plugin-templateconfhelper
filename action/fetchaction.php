@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * DokuWiki plugin template helper
  *
