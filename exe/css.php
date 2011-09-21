@@ -31,12 +31,14 @@ if(!defined('SIMPLE_TEST')){
  * @author Andreas Gohr <andi@splitbrain.org>
  */
 function css_out_tfh(){
-    global $conf,$config_cascade;
+    global $conf;
     global $lang;
-    $style = '';
+    global $config_cascade;
+
+    $mediatype = 'screen';
     if (isset($_REQUEST['s']) &&
         in_array($_REQUEST['s'], array('all', 'print', 'feed'))) {
-        $style = $_REQUEST['s'];
+        $mediatype = $_REQUEST['s'];
     }
 
     $tpl = trim(preg_replace('/[^\w-]+/','',$_REQUEST['t']));
@@ -59,7 +61,7 @@ function css_out_tfh(){
     $cache .= $tpl;
 
     // The generated script depends on some dynamic options
-    $cache = getCacheName('styles'.$_SERVER['HTTP_HOST'].$_SERVER['SERVER_PORT'].DOKU_BASE.$cache.$style,'.css');
+    $cache = getCacheName('styles'.$_SERVER['HTTP_HOST'].$_SERVER['SERVER_PORT'].DOKU_BASE.$cache.$mediatype,'.css');
 
     // load template styles
     $tplstyles = array();
@@ -82,29 +84,64 @@ function css_out_tfh(){
     // Array of needed files and their web locations, the latter ones
     // are needed to fix relative paths in the stylesheets
     $files   = array();
-    //if (isset($tplstyles['all'])) $files = array_merge($files, $tplstyles['all']);
-    if(!empty($style)){
-        $files[DOKU_INC.'lib/styles/'.$style.'.css'] = DOKU_BASE.'lib/styles/';
-        // load plugin, template, user styles
-        $files = array_merge($files, css_pluginstyles($style));
-        if (isset($tplstyles[$style])) $files = array_merge($files, $tplstyles[$style]);
-        elseif (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']); // FIX
 
-        if(isset($config_cascade['userstyle'][$style])){
-            $files[$config_cascade['userstyle'][$style]] = DOKU_BASE;
-        }
-    }else{
-        $files[DOKU_INC.'lib/styles/style.css'] = DOKU_BASE.'lib/styles/';
-        // load plugin, template, user styles
-        $files = array_merge($files, css_pluginstyles('screen'));
-        if (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']);
+    $files[DOKU_INC.'lib/styles/'.$mediatype.'.css'] = DOKU_BASE.'lib/styles/';
+    // load jQuery-UI theme
+    $files[DOKU_INC.'lib/scripts/jquery/jquery-ui-theme/smoothness.css'] = DOKU_BASE.'lib/scripts/jquery/jquery-ui-theme/';
+    // load plugin styles
+    $files = array_merge($files, css_pluginstyles($mediatype));
+    // load template styles
+    if (isset($tplstyles[$mediatype])) {
+        $files = array_merge($files, $tplstyles[$mediatype]);
+    }
+    // if old 'default' userstyle setting exists, make it 'screen' userstyle for backwards compatibility
+    if (isset($config_cascade['userstyle']['default'])) {
+        $config_cascade['userstyle']['screen'] = $config_cascade['userstyle']['default'];
+    }
+    // load user styles
+    if(isset($config_cascade['userstyle'][$mediatype])){
+        $files[$config_cascade['userstyle'][$mediatype]] = DOKU_BASE;
+    }
+    // load rtl styles
+    // @todo: this currently adds the rtl styles only to the 'screen' media type
+    //        but 'print' and 'all' should also be supported
+    if ($mediatype=='screen') {
         if($lang['direction'] == 'rtl'){
             if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
         }
-        if(isset($config_cascade['userstyle']['default'])){
-            $files[$config_cascade['userstyle']['default']] = DOKU_BASE;
-        }
     }
+
+    $cache_files = array_merge(array_keys($files), getConfigFiles('main'));
+    $cache_files[] = $tplinc.'style.ini';
+    $cache_files[] = __FILE__;
+
+
+
+
+
+#    //if (isset($tplstyles['all'])) $files = array_merge($files, $tplstyles['all']);
+#    if(!empty($style)){
+#        $files[DOKU_INC.'lib/styles/'.$style.'.css'] = DOKU_BASE.'lib/styles/';
+#        // load plugin, template, user styles
+#        $files = array_merge($files, css_pluginstyles($style));
+#        if (isset($tplstyles[$style])) $files = array_merge($files, $tplstyles[$style]);
+#        elseif (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']); // FIX
+#
+#        if(isset($config_cascade['userstyle'][$style])){
+#            $files[$config_cascade['userstyle'][$style]] = DOKU_BASE;
+#        }
+#    }else{
+#        $files[DOKU_INC.'lib/styles/style.css'] = DOKU_BASE.'lib/styles/';
+#        // load plugin, template, user styles
+#        $files = array_merge($files, css_pluginstyles('screen'));
+#        if (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']);
+#        if($lang['direction'] == 'rtl'){
+#            if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
+#        }
+#        if(isset($config_cascade['userstyle']['default'])){
+#            $files[$config_cascade['userstyle']['default']] = DOKU_BASE;
+#        }
+#    }
 
     // check cache age & handle conditional request
     header('Cache-Control: public, max-age=3600');
