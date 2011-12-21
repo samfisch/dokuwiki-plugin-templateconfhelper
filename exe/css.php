@@ -105,6 +105,10 @@ function css_out_tfh(){
     // load rtl styles
     // @todo: this currently adds the rtl styles only to the 'screen' media type
     //        but 'print' and 'all' should also be supported
+
+    if( !$mediatype ) { 
+        $mediatype = 'screen';
+    }
     if ($mediatype=='screen') {
         if($lang['direction'] == 'rtl'){
             if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
