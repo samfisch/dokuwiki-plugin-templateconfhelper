@@ -54,7 +54,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
         $this->save_session( 'template', $tpl );
     }
     if( isset( $_GET['utpl'] ) && $_GET['utpl'] == "" ) {
-	$tpl = $conf['default_tpl']; 
+	$tpl = ""; 
         $this->save_session( 'template', $tpl );
 	$switch = false;
     }
@@ -110,7 +110,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     if( $conf['template'] == $tpl ) { return ''; }
 
   // prevent userstyle from beeing overwritten ... one or the other way 
-    if( $this->u['template'] ) { return ''; }
+    if( $this->get_user( 'template' )) { return ''; }
     if( preg_match( '/^[\w-]+$/', $tpl )) {
 	    $this->_switch( $tpl );
     }
