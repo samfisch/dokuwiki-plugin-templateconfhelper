@@ -54,8 +54,8 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
         $this->save_session( 'template', $tpl );
     }
     if( isset( $_GET['utpl'] ) && $_GET['utpl'] == "" ) {
-	$tpl = ""; 
-        $this->save_session( 'template', $tpl );
+	$tpl = $conf['default_tpl']; 
+        $this->save_session( 'template', '' );	// fix subconf switch
 	$switch = false;
     }
 
@@ -75,6 +75,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
   }/*}}}*/
 
   public function get_user( $var=false ) {/*{{{*/
+    if( !defined('NOSESSION' )) {
       if( !isset( $this->u['load'] )) {
         @session_start();
         $this->u = ( isset( $_SESSION[DOKU_COOKIE]['tpl'] )) ? $_SESSION[DOKU_COOKIE]['tpl'] : false;
@@ -86,14 +87,19 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
       }
       if( $var ) return isset( $this->u[$var] ) ? $this->u[$var] : false;
       return $this->u;
+    } else {
+	return array( );
+    }
   }/*}}}*/
 
   public function save_session( $var, $val ) {/*{{{*/
+    if( !defined('NOSESSION' )) {
       $this->u[$var] = $val;
 
       @session_start();
       $_SESSION[DOKU_COOKIE]['tpl'] = $this->u;
       session_write_close();
+    }
   }/*}}}*/
 
   public function save_user( $var, $val ) {
@@ -124,6 +130,7 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
         $conf['template_theme'] = $theme;
     }
 
+    $conf['default_tpl'] = $conf['template'];
     $conf['template'] = $tpl;
 
     $tconf = $this->tpl_loadconfig( $tpl ); 
