@@ -85,6 +85,10 @@ function css_out_tfh(){
     // are needed to fix relative paths in the stylesheets
     $files   = array();
 
+    if(!isset($_REQUEST['s'])) {
+        $files[DOKU_INC.'lib/styles/style.css'] = DOKU_BASE.'lib/styles/';   // compatibility with 2010-11-07a
+    }
+
     $files[DOKU_INC.'lib/styles/'.$mediatype.'.css'] = DOKU_BASE.'lib/styles/';
     // load jQuery-UI theme
     $files[DOKU_INC.'lib/scripts/jquery/jquery-ui-theme/smoothness.css'] = DOKU_BASE.'lib/scripts/jquery/jquery-ui-theme/';
