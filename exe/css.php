@@ -1,12 +1,7 @@
 <?php
 /**
- * DokuWiki StyleSheet creator fork
- *
- * @license    GPL3 (http://www.gnu.org/licenses/gpl.html)
- * @author     Andreas Gohr <andi@splitbrain.org>
- * @author     Samuel Fischer <sf@notomorrow.de>
+ * overrides for DokuWiki StyleSheet creator
  */
-
 if(!defined('DOKU_INC')) define('DOKU_INC',dirname(__FILE__).'/../../');
 if(!defined('NOSESSION')) define('NOSESSION',true); // we do not use a session or authentication here (better caching)
 if(!defined('DOKU_DISABLE_GZIP_OUTPUT')) define('DOKU_DISABLE_GZIP_OUTPUT',1); // we gzip ourself here
@@ -25,161 +20,115 @@ if(!defined('SIMPLE_TEST')){
 
 // ---------------------- functions ------------------------------
 
-/**
- * Output all needed Styles
- *
- * @author Andreas Gohr <andi@splitbrain.org>
- */
 function css_out_tfh(){
     global $conf;
     global $lang;
     global $config_cascade;
+    global $INPUT;
 
-    $mediatype = 'screen';
-    if (isset($_REQUEST['s']) &&
-        in_array($_REQUEST['s'], array('all', 'print', 'feed'))) {
-        $mediatype = $_REQUEST['s'];
+    if ($INPUT->str('s') == 'feed') {
+        $mediatypes = array('feed');
+        $type = 'feed';
+    } else {
+        $mediatypes = array('screen', 'all', 'print');
+        $type = '';
     }
 
-    $tpl = trim(preg_replace('/[^\w-]+/','',$_REQUEST['t']));
+    $tpl = trim(preg_replace('/[^\w-]+/','',$INPUT->str('t')));
     if($tpl){
         #$tplinc = DOKU_INC.'lib/tpl/'.$tpl.'/';
         $tpldir = DOKU_BASE.'lib/tpl/'.$tpl.'/';
     }else{
-        #$tplinc = DOKU_TPLINC;
-        $tpldir = DOKU_TPL;
+        #$tplinc = tpl_incdir();
+        $tpldir = tpl_basedir();
     }
-
-    $cache = '';
-
-    // changes for farming start here
-
-    // meant to detect changes in config_cascade
-    foreach( $config_cascade['template_dir'] as $k => $v ) {
-        $cache.= str_replace( array( ':', '/' ), '', implode( $v ));   
-    }
-    $cache .= $tpl;
 
     // The generated script depends on some dynamic options
-    $cache = getCacheName('styles'.$_SERVER['HTTP_HOST'].$_SERVER['SERVER_PORT'].DOKU_BASE.$cache.$mediatype,'.css');
+    $cache = new cache('styles'.$_SERVER['HTTP_HOST'].$_SERVER['SERVER_PORT'].DOKU_BASE.$cache.$mediatype,'.css');
 
     // load template styles
     $tplstyles = array();
     $style_ini = css_getpath( $tpl, 'style.ini' );
-    if( $style_ini ){
-        $ini = parse_ini_file( $style_ini, true);
-        if( count( $ini )) {
-            foreach($ini['stylesheets'] as $file => $mode){
-                $tplstyles[$mode][css_getpath( $tpl, $file )] = $tpldir;
-            }
-        }
-    }
-#    if(@file_exists($tplinc.'style.ini')){
-#        $ini = parse_ini_file($tplinc.'style.ini',true);
-#        foreach($ini['stylesheets'] as $file => $mode){
-#            $tplstyles[$mode][$tplinc.$file] = $tpldir;
-#        }
-#    }
-
-    // Array of needed files and their web locations, the latter ones
-    // are needed to fix relative paths in the stylesheets
-    $files   = array();
-
-    if(!isset($_REQUEST['s'])) {
-        $files[DOKU_INC.'lib/styles/style.css'] = DOKU_BASE.'lib/styles/';   // compatibility with 2010-11-07a
-    }
-
-    $files[DOKU_INC.'lib/styles/'.$mediatype.'.css'] = DOKU_BASE.'lib/styles/';
-    // load jQuery-UI theme
-    $files[DOKU_INC.'lib/scripts/jquery/jquery-ui-theme/smoothness.css'] = DOKU_BASE.'lib/scripts/jquery/jquery-ui-theme/';
-    // load plugin styles
-    $files = array_merge($files, css_pluginstyles($mediatype));
-    // load template styles
-    if (isset($tplstyles[$mediatype])) {
-        $files = array_merge($files, $tplstyles[$mediatype]);
-    }
-    // if old 'default' userstyle setting exists, make it 'screen' userstyle for backwards compatibility
-    if (isset($config_cascade['userstyle']['default'])) {
-        $config_cascade['userstyle']['screen'] = $config_cascade['userstyle']['default'];
-    }
-    // load user styles
-    if(isset($config_cascade['userstyle'][$mediatype])){
-        $files[$config_cascade['userstyle'][$mediatype]] = DOKU_BASE;
-    }
-    // load rtl styles
-    // @todo: this currently adds the rtl styles only to the 'screen' media type
-    //        but 'print' and 'all' should also be supported
-
-    if( !$mediatype ) { 
-        $mediatype = 'screen';
-    }
-    if ($mediatype=='screen') {
-        if($lang['direction'] == 'rtl'){
-            if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
+    if(@file_exists($style_ini)){
+        $ini = parse_ini_file($style_ini,true);
+        foreach($ini['stylesheets'] as $file => $mode){
+            $tplstyles[$mode][css_getpath( $tpl, $file )] = $tpldir;
         }
     }
 
-    $cache_files = array_merge(array_keys($files), getConfigFiles('main'));
-    $cache_files[] = css_getpath( $tpl, 'style.ini' );
-    $cache_files[] = __FILE__;
-
-#    //if (isset($tplstyles['all'])) $files = array_merge($files, $tplstyles['all']);
-#    if(!empty($style)){
-#        $files[DOKU_INC.'lib/styles/'.$style.'.css'] = DOKU_BASE.'lib/styles/';
-#        // load plugin, template, user styles
-#        $files = array_merge($files, css_pluginstyles($style));
-#        if (isset($tplstyles[$style])) $files = array_merge($files, $tplstyles[$style]);
-#        elseif (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']); // FIX
-#
-#        if(isset($config_cascade['userstyle'][$style])){
-#            $files[$config_cascade['userstyle'][$style]] = DOKU_BASE;
-#        }
-#    }else{
-#        $files[DOKU_INC.'lib/styles/style.css'] = DOKU_BASE.'lib/styles/';
-#        // load plugin, template, user styles
-#        $files = array_merge($files, css_pluginstyles('screen'));
-#        if (isset($tplstyles['screen'])) $files = array_merge($files, $tplstyles['screen']);
-#        if($lang['direction'] == 'rtl'){
-#            if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
-#        }
-#        if(isset($config_cascade['userstyle']['default'])){
-#            $files[$config_cascade['userstyle']['default']] = DOKU_BASE;
-#        }
-#    }
-
-    // check cache age & handle conditional request
-    header('Cache-Control: public, max-age=3600');
-    header('Pragma: public');
-    if(css_cacheok_tfh($cache,array_merge( array_keys($files)), css_getpath( $tpl, 'style.ini' ))){     //added style.init
-        http_conditionalRequest(filemtime($cache));
-        if($conf['allowdebug']) header("X-CacheUsed: $cache");
-
-        // finally send output
-        if ($conf['gzip_output'] && http_gzip_valid($cache)) {
-          header('Vary: Accept-Encoding');
-          header('Content-Encoding: gzip');
-          readfile($cache.".gz");
-        } else {
-          if (!http_sendfile($cache)) readfile($cache);
-        }
-
-        return;
-    } else {
-        http_conditionalRequest(time());
-    }
-
-    // start output buffering and build the stylesheet
+    // start output buffering
     ob_start();
 
-    // print the default classes for interwiki links and file downloads
-    css_interwiki();
-    css_filetypes();
+    foreach($mediatypes as $mediatype) {
+        // Array of needed files and their web locations, the latter ones
+        // are needed to fix relative paths in the stylesheets
+        $files   = array();
+        // load core styles
+        $files[DOKU_INC.'lib/styles/'.$mediatype.'.css'] = DOKU_BASE.'lib/styles/';
+        // load jQuery-UI theme
+        if ($mediatype == 'screen') {
+            $files[DOKU_INC.'lib/scripts/jquery/jquery-ui-theme/smoothness.css'] = DOKU_BASE.'lib/scripts/jquery/jquery-ui-theme/';
+        }
+        // load plugin styles
+        $files = array_merge($files, css_pluginstyles($mediatype));
+        // load template styles
+        if (isset($tplstyles[$mediatype])) {
+            $files = array_merge($files, $tplstyles[$mediatype]);
+        }
+        // if old 'default' userstyle setting exists, make it 'screen' userstyle for backwards compatibility
+        if (isset($config_cascade['userstyle']['default'])) {
+            $config_cascade['userstyle']['screen'] = $config_cascade['userstyle']['default'];
+        }
+        // load user styles
+        if(isset($config_cascade['userstyle'][$mediatype])){
+            $files[$config_cascade['userstyle'][$mediatype]] = DOKU_BASE;
+        }
+        // load rtl styles
+        // note: this adds the rtl styles only to the 'screen' media type
+        // @deprecated 2012-04-09: rtl will cease to be a mode of its own,
+        //     please use "[dir=rtl]" in any css file in all, screen or print mode instead
+        if ($mediatype=='screen') {
+            if($lang['direction'] == 'rtl'){
+                if (isset($tplstyles['rtl'])) $files = array_merge($files, $tplstyles['rtl']);
+            }
+        }
 
-    // load files
-    foreach($files as $file => $location){
-        print css_loadfile($file, $location);
+        $cache_files = array_merge(array_keys($files), getConfigFiles('main'));
+        $cache_files[] = $tplinc.'style.ini';
+        $cache_files[] = __FILE__;
+
+        // check cache age & handle conditional request
+        // This may exit if a cache can be used
+        http_cached($cache->cache,
+                    $cache->useCache(array('files' => $cache_files)));
+
+        // build the stylesheet
+
+        // print the default classes for interwiki links and file downloads
+        if ($mediatype == 'screen') {
+            css_interwiki();
+            css_filetypes();
+        }
+
+        // load files
+        $css_content = '';
+        foreach($files as $file => $location){
+            $css_content .= css_loadfile($file, $location);
+        }
+        switch ($mediatype) {
+            case 'screen':
+                print NL.'@media screen { /* START screen styles */'.NL.$css_content.NL.'} /* /@media END screen styles */'.NL;
+                break;
+            case 'print':
+                print NL.'@media print { /* START print styles */'.NL.$css_content.NL.'} /* /@media END print styles */'.NL;
+                break;
+            case 'all':
+            case 'feed':
+            default:
+                print NL.'/* START rest styles */ '.NL.$css_content.NL.'/* END rest styles */'.NL;
+                break;
+        }
     }
-
     // end output buffering and get contents
     $css = ob_get_contents();
     ob_end_clean();
@@ -187,76 +136,33 @@ function css_out_tfh(){
     // apply style replacements
     $css = css_applystyle_tfh($css,$tpl);   // removed tplinc
 
+    // place all @import statements at the top of the file
+    $css = css_moveimports($css);
+
     // compress whitespace and comments
     if($conf['compress']){
         $css = css_compress($css);
     }
 
-    // save cache file
-    io_saveFile($cache,$css);
-    if(function_exists('gzopen')) io_saveFile("$cache.gz",$css);
-
-    // finally send output
-    if ($conf['gzip_output']) {
-      header('Vary: Accept-Encoding');
-      header('Content-Encoding: gzip');
-      print gzencode($css,9,FORCE_GZIP);
-    } else {
-      print $css;
+    // embed small images right into the stylesheet
+    if($conf['cssdatauri']){
+        $base = preg_quote(DOKU_BASE,'#');
+        $css = preg_replace_callback('#(url\([ \'"]*)('.$base.')(.*?(?:\.(png|gif)))#i','css_datauri',$css);
     }
+
+    http_cached_finish($cache->cache, $css);
 }
 
-/**
- * Checks if a CSS Cache file still is valid
- *
- * @author Andreas Gohr <andi@splitbrain.org>
- */
-function css_cacheok_tfh($cache,$files,$style_ini){
-    global $config_cascade;
-
-    if(isset($_REQUEST['purge'])) return false; //support purge request
-
-    $ctime = @filemtime($cache);
-    if(!$ctime) return false; //There is no cache
-
-    // some additional files to check
-    $files = array_merge($files, getConfigFiles('main'));
-    if( $style_ini ) $files[] = $style_ini;     // remoted tplinc
-    $files[] = __FILE__;
-
-    // now walk the files
-    foreach($files as $file){
-        if(@filemtime($file) > $ctime){
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Does placeholder replacements in the style according to
- * the ones defined in a templates style.ini file
- *
- * @author Andreas Gohr <andi@splitbrain.org>
- */
 function css_applystyle_tfh($css, $tpl ){
     global $conf;
 
       if( !$file = getConfigPath( 'template_dir', $tpl.'/style.ini' ))
         $file = getConfigPath( 'template_dir', $conf['default_tpl'].'/style.ini' );
+    if(@file_exists($file)){
+        $ini = parse_ini_file($file,true);
+        $css = strtr($css,$ini['replacements']);
+    }
 
-    $ini = parse_ini_file( $file, true);
-    $css = strtr($css,$ini['replacements']);
-
-    // #TODO  
-    // implement logic to overwrite deffinitions ? would be nice to inherit style replacements
-    // this affects cache 
-      #global $conf;
-
-#    if(@file_exists($tpldir.'style.ini')){
-#        $ini = parse_ini_file($tpldir.'style.ini',true);
-#        $css = strtr($css,$ini['replacements']);
-#    }
     return $css;
 }
 
@@ -275,9 +181,8 @@ function css_getpath( $t, $file ) {
     if( !$include ) {
         $include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
     }
-#echo "include($file): $include<br>\n";
+    echo "/* css_getpath: include($file): $include */\n";
 
     return $include; 
 
 }
-//Setup VIM: ex: et ts=4 enc=utf-8 :
