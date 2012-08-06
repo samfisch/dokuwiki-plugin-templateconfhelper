@@ -111,7 +111,7 @@ function css_out_tfh(){
         }
 
         $cache_files = array_merge(array_keys($files), getConfigFiles('main'));
-        $cache_files[] = $tplinc.'style.ini';
+        $cache_files[] = css_getpath( $tpl, 'style.ini' );
         $cache_files[] = __FILE__;
 
         // check cache age & handle conditional request
