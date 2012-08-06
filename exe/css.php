@@ -26,15 +26,32 @@ function css_out_tfh(){
     global $config_cascade;
     global $INPUT;
 
-    if ($INPUT->str('s') == 'feed') {
-        $mediatypes = array('feed');
-        $type = 'feed';
+    if( $INPUT ) {
+        if ($INPUT->str('s') == 'feed') {
+            $mediatypes = array('feed');
+            $type = 'feed';
+        } else {
+            $mediatypes = array('screen', 'all', 'print');
+            $type = '';
+        }
+        $tpl = trim(preg_replace('/[^\w-]+/','',$INPUT->str('t')));
     } else {
-        $mediatypes = array('screen', 'all', 'print');
-        $type = '';
-    }
+        if (isset($_REQUEST['s']) &&
+            in_array($_REQUEST['s'], array('all', 'print', 'feed'))) {
+            $mediatype = $_REQUEST['s'];
+            $mediatypes = array($_REQUEST['s']);
+        } else {
+            $mediatypes = array('screen', 'all', 'print');
+            $type = '';
+        }
+        $tpl = trim(preg_replace('/[^\w-]+/','',$_REQUEST['t']));
 
-    $tpl = trim(preg_replace('/[^\w-]+/','',$INPUT->str('t')));
+        function tpl_basedir(){
+            global $conf;
+            return DOKU_BASE.'lib/tpl/'.$conf['template'].'/';
+        } 
+    } 
+
     if($tpl){
         #$tplinc = DOKU_INC.'lib/tpl/'.$tpl.'/';
         $tpldir = DOKU_BASE.'lib/tpl/'.$tpl.'/';
