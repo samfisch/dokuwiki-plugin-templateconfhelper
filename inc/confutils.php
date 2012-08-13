@@ -25,7 +25,7 @@ function getConfigPath($type, $file) {
     foreach( $config_cascade[$type][$config_group] as $path ) {
 ## DEBUG
 #echo "check $path$file<br>\n";
-        if( file_exists( $path.$file )) {
+        if( file_exists( $path.$file ) && !in_array( $path.$file, get_included_files( ))) {
 #echo "return $path$file<br>\n";
             return $path.$file;
         }
