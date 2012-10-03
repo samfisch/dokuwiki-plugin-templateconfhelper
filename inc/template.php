@@ -24,6 +24,7 @@ function tpl_include( $file, $t=false, $allowphp=true ) {
     if( !$include || in_array( $include, $included_templates )) {
 	$include = getConfigPath( 'template_dir', $conf['base_tpl'].'/'.$file );
     }
+    if( !$include ) return false;
 
     if( $allowphp || $conf['tpl_allowphp'] ) {
         $included_templates[] = $include;

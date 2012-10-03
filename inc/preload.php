@@ -16,6 +16,7 @@ global $config_cascade, $conf;
 if( !isset( $config_cascade['template_dir'] )) {
    $config_cascade['template_dir'] = array(    // used in confutils	
         'default' => array( dirname( DOKU_TPLINC ).'/' ),
+        'local' => array( $conf['savedir'].'/media/tpl/' ),
    );
 }
 
