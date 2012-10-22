@@ -14,23 +14,25 @@ require_once(DOKU_PLUGIN.'templateconfhelper/inc/template.php');
 
 global $config_cascade, $conf;
 if( !isset( $config_cascade['template_dir'] )) {
-   $config_cascade['template_dir'] = array(    // used in confutils	
+   $config_cascade['template_dir'] = array(
         'default' => array( dirname( DOKU_TPLINC ).'/' ),
         'local' => array( $conf['savedir'].'/media/tpl/' ),
    );
 }
 
+
 $conf['default_tpl'] = $conf['template'];
 if( !isset( $conf['base_tpl'] )) 
     $conf['base_tpl'] = $conf['plugin']['templateconfhelper']['base_tpl'];
 
-/**
- * intercept css.php calls
- */
 if( strpos( $_SERVER['PHP_SELF'], 'css.php' ) !== false ) {
   $e = new action_plugin_templateconfhelper_templateaction( );
   $e->template_action( );
   require_once(DOKU_PLUGIN.'templateconfhelper/exe/css.php');
   exit;
+}  
+
+if( strpos( $_SERVER['PHP_SELF'], 'js.php' ) !== false ) {
+  $conf['template'] = $conf['base_tpl'];
 }  
 
