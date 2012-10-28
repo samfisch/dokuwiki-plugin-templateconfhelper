@@ -35,9 +35,14 @@ class action_plugin_templateconfhelper_templateaction extends DokuWiki_Action_Pl
     $theme  = '';
     $switch = false;
 
+    if( $conf['plugin']['templateconfhelper']['base_tpl'] != $tpl ) {
+        $tpl    = $conf['plugin']['templateconfhelper']['base_tpl'];
+        $switch = true;
+    }
+
     $u = $this->get_user( ); // init user data
 
-    if( isset( $u['template'] ) && $u['template'] != $tpl ) {
+    if( isset( $u['template'] ) && $u['template'] && $u['template'] != $tpl ) {
 	$tpl = $u['template'];
 	$switch = true;
     }
