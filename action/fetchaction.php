@@ -22,7 +22,7 @@ class action_plugin_templateconfhelper_fetchaction extends DokuWiki_Action_Plugi
     );
   }
 
-  function register(&$controller) {/*{{{*/
+  function register(Doku_Event_Handler $controller) {/*{{{*/
 
       $controller->register_hook('FETCH_MEDIA_STATUS', 'BEFORE', $this, 'fetch_action' );
 
